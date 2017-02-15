@@ -1,5 +1,5 @@
 Xing Wang and Junyao Yang
-Algorithm: Dijkstra
+Algorithm: SLF
 Origin: 2204
 Destination: 90
 Cost: 30123

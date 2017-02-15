@@ -5,6 +5,7 @@ Created on Feb 7, 2017
 '''
 import sys
 import re
+import time
 
 class Graph(object):
     def __init__(self, distDict, neighbors):
@@ -65,58 +66,65 @@ class LabelCorrectingAlgorithm(object):
         f.close()
         graph = Graph(distDict, neighbors)
         return graph
-
-#     def getUniqueNodes(self, nodesList):
-#         setDict = {}
-#         map(setDict.__setitem__, nodesList, [])
-#         return setDict.keys()
     
     def search(self):
         self.initialize()
+        iteration = 0
+        t0 = time.time()
         while (len(self.open) > 0):
+            iteration += 1
             i = self.dequeue()
+            self.visited[i] = True
             for j in self.graph.neighbors[i]:
-                dist = self.dist2origin[i] + self.graph.distDict[(i, j)]
-                #print len(self.open)
-                if (dist < self.dist2origin[j]) and (dist < self.upper):
-                    self.dist2origin[j] = dist
-                    self.pred[j] = i
-                    if (j != self.dest):
-                        if (j not in self.open):
-                            self.enqueue(j)
-                    else:
-                        self.upper = dist
+                if not self.visited[j]:
+                    dist = self.dist2origin[i] + self.graph.distDict[(i, j)]
+                    #print len(self.open)
+                    if (dist < self.dist2origin[j]) and (dist < self.upper):
+                        self.dist2origin[j] = dist
+                        self.pred[j] = i
+                        if (j != self.dest):
+                            if (j not in self.open):
+                                self.enqueue(j)
+                        else:
+                            self.upper = dist
+        runTime = time.time() - t0
+        print 'Cost of the shortest path is %d' % self.upper
         self.path = self.getPath()
+        print 'Number of steps (arcs) in the shortest path is %d' % (len(self.path))        
+        print 'Running time = %.4f seconds' % (runTime)
+        print 'Total Iterations = %d' % iteration
+        
         self.writeResults()
 
-    def writeResults(self):
-        path = '('
-        n = len(self.path) - 1
-        for k in range(n):
-            s = '%d, ' % self.path[k]
-            path+=s
-        s = '%d)' % self.path[n]
-        path += s        
-        find = re.compile(r"^[^.]*")
-        fileName = re.search(find, self.inputFile).group(0)
-        outputFile = 'sol_%s_%d_%d_%s.txt' % (fileName, self.origin, self.dest, self.alg)
-        with open(outputFile, 'w') as f:
-            f.write('Xing Wang\n')
-            f.write('Algorithm: %s\n' % self.alg)
-            f.write('Origin: %d\n' % self.origin)
-            f.write('Destination: %d\n' % self.dest)
-            f.write('Cost: %d\n' % self.upper)
-            f.write('Path: %s' % path)
-        
-    def getPath(self):
-        path = []
-        nextNode = self.dest
-        while (nextNode > -1):
-            path.append(nextNode)
-            nextNode = self.pred[nextNode]
-        path.reverse()
-        return path
+
+                    
+    def initialize(self):
+        self.dist2origin = [sys.maxint] * (self.graph.maxNode + 1)
+        self.dist2origin[self.origin] = 0
+        self.pred = [None] * (self.graph.maxNode + 1)
+        self.pred[self.origin] = -1
+        self.upper = sys.maxint
+        self.open = [self.origin]
+        self.visited = [False] * (self.graph.maxNode + 1)
     
+    def enqueue(self, j):
+#         if (self.alg == 'DFS'):
+#             self.open.append(j)
+#         elif (self.alg == 'BFS'):
+#             self.open.append(j)
+#         elif (self.alg == 'Dijkstra'):
+#             self.open.append(j)
+#         elif (self.alg == 'SLF'):
+#             k = self.open[0]    # k is the top node of the queue
+#             if (self.dist2origin[j] <= self.dist2origin[k]):
+#                 self.open.insert(0, j)
+#             else:
+#                 self.open.append(j)
+        if (self.alg == 'SLF') and (len(self.open) > 0) and (self.dist2origin[j] <= self.dist2origin[self.open[0]]):
+            self.open.insert(0, j)
+        else:
+            self.open.append(j)
+
     def dequeue(self):
         if (self.alg == 'DFS'):
             return self.open.pop()
@@ -130,24 +138,44 @@ class LabelCorrectingAlgorithm(object):
                     i = j
             self.open.remove(i)
             return i
-        #elif (self.alg == 'SLF'):
+        elif (self.alg == 'SLF'):
+            meanOpen = 0
+            for j in self.open:
+                meanOpen += self.dist2origin[j]
+            meanOpen = meanOpen * 1. / len(self.open)
+            i = self.open.pop(0)
+            while (self.dist2origin[i] > meanOpen):
+                self.open.append(i)
+                i = self.open.pop(0) # easier for OPEN to be a LinkedList in Java
+            return i
         
-    def enqueue(self, j):
-        if (self.alg == 'DFS'):
-            self.open.append(j)
-        elif (self.alg == 'BFS'):
-            self.open.append(j)
-        elif (self.alg == 'Dijkstra'):
-            self.open.append(j)
-        #elif (self.alg == 'SLF'):           
-            
-    def initialize(self):
-        self.dist2origin = [sys.maxint] * (self.graph.maxNode + 1)
-        self.dist2origin[self.origin] = 0
-        self.pred = [None] * (self.graph.maxNode + 1)
-        self.pred[self.origin] = -1
-        self.upper = sys.maxint
-        self.open = [self.origin]
+    def getPath(self):
+        path = []
+        nextNode = self.dest
+        while (nextNode > -1):
+            path.append(nextNode)
+            nextNode = self.pred[nextNode]
+        path.reverse()
+        return path        
+
+    def writeResults(self):
+        path = '('
+        n = len(self.path) - 1
+        for k in range(n):
+            s = '%d, ' % self.path[k]
+            path+=s
+        s = '%d)' % self.path[n]
+        path += s        
+        find = re.compile(r"^[^.]*")
+        fileName = re.search(find, self.inputFile).group(0)
+        outputFile = 'sol_%s_%d_%d_%s.txt' % (fileName, self.origin, self.dest, self.alg)
+        with open(outputFile, 'w') as f:
+            f.write('Xing Wang and Junyao Yang\n')
+            f.write('Algorithm: %s\n' % self.alg)
+            f.write('Origin: %d\n' % self.origin)
+            f.write('Destination: %d\n' % self.dest)
+            f.write('Cost: %d\n' % self.upper)
+            f.write('Path: %s' % path)
     
 def main():
     if len(sys.argv) == 5:
