@@ -1,5 +1,5 @@
 Xing Wang and Junyao Yang
-Algorithm: SLF
+Algorithm: BFS
 Origin: 94989
 Destination: 255497
 Cost: 759209

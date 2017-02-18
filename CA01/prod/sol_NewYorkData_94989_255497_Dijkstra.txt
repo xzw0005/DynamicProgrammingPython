@@ -1,4 +1,4 @@
-Qiong Hu and Zhenying Huang
+Xing Wang and Junyao Yang
 Algorithm: Dijkstra
 Origin: 94989
 Destination: 255497

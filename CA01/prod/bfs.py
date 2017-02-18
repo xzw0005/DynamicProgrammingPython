@@ -48,8 +48,8 @@ def main():
                 d[j] = d[i]+costs[(i, j)]
                 pred[j] = i
                 if j != z:
-                    if j not in open_list:
-                        open_list.append(j)
+#                     if j not in open_list:
+                    open_list.append(j)
                 else:
                     upper = d[i]+costs[(i, j)]
                     

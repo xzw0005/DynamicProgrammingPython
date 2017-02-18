@@ -11,13 +11,14 @@ class Graph(object):
     def __init__(self, distDict, neighbors):
         self.distDict = distDict          # dictionary containing distances of every edge
         self.neighbors = neighbors 
-        self.nodes = sorted(neighbors.keys())
-        self.minNode = self.nodes[0]
-        self.maxNode = self.nodes[-1]
+        allNodes = sorted(neighbors.keys())
+#         self.numNodes = len(allNodes)
+        self.minNode = allNodes[0]
+        self.maxNode = allNodes[-1]
 
 class LabelCorrectingAlgorithm(object):
     '''
-    classdocs
+    LabelCorrectingAlgorithm: includes DFS, BFS, Dijkstra, and SLF (actually a combination of SLF & LLL)
     '''
     DIAG_CLASS = "LabelCorrectingAlgorithm."
     def __init__(self, alg, inputFile, origin, dest):
@@ -71,29 +72,30 @@ class LabelCorrectingAlgorithm(object):
         self.initialize()
         iteration = 0
         t0 = time.time()
-        while (len(self.open) > 0):
+        while (len(self.open) > 0 or iteration < 2e8):
             iteration += 1
             i = self.dequeue()
-            self.visited[i] = True
             for j in self.graph.neighbors[i]:
-                if not self.visited[j]:
-                    dist = self.dist2origin[i] + self.graph.distDict[(i, j)]
-                    #print len(self.open)
-                    if (dist < self.dist2origin[j]) and (dist < self.upper):
-                        self.dist2origin[j] = dist
-                        self.pred[j] = i
-                        if (j != self.dest):
-                            if (j not in self.open):
-                                self.enqueue(j)
-                        else:
-                            self.upper = dist
+                self.visited[j] = True
+                dist = self.dist2origin[i] + self.graph.distDict[(i, j)]
+                #print len(self.open)
+                if (dist < self.dist2origin[j]) and (dist < self.upper):
+                    self.dist2origin[j] = dist
+                    self.pred[j] = i
+                    if (j != self.dest):
+#                         if (j not in self.open):
+                        self.enqueue(j)
+                    else:
+                        self.upper = dist
         runTime = time.time() - t0
+        print '%d ==> %d, %s' %(self.origin, self.dest, self.alg)
         print 'Cost of the shortest path is %d' % self.upper
         self.path = self.getPath()
         print 'Number of steps (arcs) in the shortest path is %d' % (len(self.path))        
         print 'Running time = %.4f seconds' % (runTime)
         print 'Total Iterations = %d' % iteration
-        
+        print 'Distinct nodes touched = %d' %(sum(self.visited))
+        print '-----------------------------------------------------'
         self.writeResults()
 
 
@@ -106,6 +108,7 @@ class LabelCorrectingAlgorithm(object):
         self.upper = sys.maxint
         self.open = [self.origin]
         self.visited = [False] * (self.graph.maxNode + 1)
+        self.visited[self.origin] = True
     
     def enqueue(self, j):
 #         if (self.alg == 'DFS'):

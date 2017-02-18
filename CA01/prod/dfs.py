@@ -28,33 +28,33 @@ def main():
     
     N = sorted(nbs.keys())[-1]
     d = []
-    touched = []
+    #touched = []
     pred = []
     for i in range(N+1):
         d.append(sys.maxint)
         pred.append(None)
-        touched.append(0)
+#         touched.append(0)
     d[n0] = 0
     pred[n0] = -1
-    upper = sys.maxint
+    #upper = sys.maxint
+    upper = 800000
     open_list = [n0]
 #     nodes = [n0]
     while len(open_list)>0:
         i = open_list.pop()
         it = it + 1
         for j in nbs[i]:
-            if touched[j] == 0:
 #             if j not in nodes:
 #                 nodes.append(j)
-                if d[i]+costs[(i, j)] < min(d[j], upper):
-                    d[j] = d[i]+costs[(i, j)]
-                    pred[j] = i
-                    touched[i] = 1
-                    if j != z:
-                        if j not in open_list:
-                            open_list.append(j)
-                    else:
-                        upper = d[i]+costs[(i, j)]
+            if d[i]+costs[(i, j)] < min(d[j], upper):
+                d[j] = d[i]+costs[(i, j)]
+                pred[j] = i
+#                 touched[i] = 1
+                if j != z:
+                    if j not in open_list:
+                        open_list.append(j)
+                else:
+                    upper = d[i]+costs[(i, j)]
                     
     # record some results
     print 'running time: %.4f seconds' % (time.time() - start_time)
