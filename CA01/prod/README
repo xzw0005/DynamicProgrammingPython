@@ -1,0 +1,25 @@
+Make sure Python 2 (2.7.2+ is preferred) is installed and in your environment.
+
+Deliverables:
+	1. Python file: "LCA.py"
+	2. Report: "dp_ca01.pdf"
+	3. This README file
+	4. All solution files are as .txt format, while the file names specified the data, instance, as well as the algorithm used.
+		
+----------------------------------------------
+# How to run the code:
+In your command line terminal:
+<< python LCA.py method inputFile(optional) origin destination
+
+Make sure you provided the correct path to the inputFile. Default file would be RomeData.csv in current directory. Would raise error if file does not exist.
+And the output file will be saved in current directory in .txt format.
+
+	## Examples
+	e.g., if you want to find solutions from node 2204 to node 90 in RomeData.csv by Dijkstra's algorithm, in the terminal, you need to specify:
+	<< python LCA.py dijkstra RomeData.csv 2204 90
+	where RomeData.csv is optional. 
+	After the program finds a solution, it will print out some results (which we will show later) on the screen, 
+	as well as an output file named "sol_RomeData_2204_90_Dijkstra.txt" was written in the same directory.
+	
+	e.g., if you want to find solutions from node 77 to node 36373 in NewYorkData.csv by BFS(Bellman-Ford) algorithm, in the terminal, you need to specify:
+	<< python LCA.py bfs NewYorkData.csv 77 36373

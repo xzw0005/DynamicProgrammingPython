@@ -10,10 +10,10 @@ import time
 class Graph(object):
     def __init__(self, distDict, neighbors):
         self.distDict = distDict          # dictionary containing distances of every edge
-        self.neighbors = neighbors 
+        self.neighbors = neighbors  # dictionary which stores all neighbors for each node.
         allNodes = sorted(neighbors.keys())
-#         self.numNodes = len(allNodes)
-        self.minNode = allNodes[0]
+        # To validate the input origin and destination, also to generate appropriate length of arrays
+        self.minNode = allNodes[0]  
         self.maxNode = allNodes[-1]
 
 class LabelCorrectingAlgorithm(object):
@@ -25,7 +25,7 @@ class LabelCorrectingAlgorithm(object):
         '''
         Constructor: Creates an instance of Label Correcting Algorithm
         '''
-        graph = self.loadGraphFile(inputFile)
+        graph = self.loadGraphFile(inputFile)       # construct a Graph instance by calling loadGraphFile
         if (origin < graph.minNode) or (origin > graph.maxNode):
             raise ValueError('Invalid origin input: not in valid range!')
         if (dest < graph.minNode) or (dest > graph.maxNode):
@@ -47,7 +47,7 @@ class LabelCorrectingAlgorithm(object):
         self.upper = None
         self.path = None
     
-    def loadGraphFile(self, inputFile):
+    def loadGraphFile(self, inputFile):     # Read input file
         f = open(inputFile, 'r')
         line = f.readline()
         distDict = {}
@@ -68,10 +68,10 @@ class LabelCorrectingAlgorithm(object):
         graph = Graph(distDict, neighbors)
         return graph
     
-    def search(self):
-        self.initialize()
+    def search(self):       # LCA algorithm
+        self.initialize() # initialization
         iteration = 0
-        t0 = time.time()
+        t0 = time.time() # to record the time
         while (len(self.open) > 0 or iteration < 2e8):
             iteration += 1
             i = self.dequeue()
@@ -83,8 +83,8 @@ class LabelCorrectingAlgorithm(object):
                     self.dist2origin[j] = dist
                     self.pred[j] = i
                     if (j != self.dest):
-#                         if (j not in self.open):
-                        self.enqueue(j)
+                        if (j not in self.open):
+                            self.enqueue(j)
                     else:
                         self.upper = dist
         runTime = time.time() - t0
@@ -101,11 +101,11 @@ class LabelCorrectingAlgorithm(object):
 
                     
     def initialize(self):
-        self.dist2origin = [sys.maxint] * (self.graph.maxNode + 1)
+        self.dist2origin = [sys.maxint] * (self.graph.maxNode + 1) # distance to the origin for each node 
         self.dist2origin[self.origin] = 0
-        self.pred = [None] * (self.graph.maxNode + 1)
-        self.pred[self.origin] = -1
-        self.upper = sys.maxint
+        self.pred = [None] * (self.graph.maxNode + 1) # predecessor array for each node
+        self.pred[self.origin] = -1  # to mark where to start
+        self.upper = sys.maxint     
         self.open = [self.origin]
         self.visited = [False] * (self.graph.maxNode + 1)
         self.visited[self.origin] = True
@@ -130,32 +130,32 @@ class LabelCorrectingAlgorithm(object):
 
     def dequeue(self):
         if (self.alg == 'DFS'):
-            return self.open.pop()
+            return self.open.pop()  # remove from tail
         elif (self.alg == 'BFS'):
-            return self.open.pop(0)
+            return self.open.pop(0) # remove from head
         elif (self.alg == 'Dijkstra'):
             smallest = sys.maxint
             for j in self.open:
                 if (self.dist2origin[j] < smallest):
                     smallest = self.dist2origin[j]
-                    i = j
-            self.open.remove(i)
+                    i = j       
+            self.open.remove(i)     # i is the location of the node which has smallest distance to origin in OPEN
             return i
         elif (self.alg == 'SLF'):
             meanOpen = 0
             for j in self.open:
                 meanOpen += self.dist2origin[j]
-            meanOpen = meanOpen * 1. / len(self.open)
-            i = self.open.pop(0)
+            meanOpen = meanOpen * 1. / len(self.open) # compute the mean distance to origin for nodes in OPEN
+            i = self.open.pop(0)  # remove from head
             while (self.dist2origin[i] > meanOpen):
-                self.open.append(i)
-                i = self.open.pop(0) # easier for OPEN to be a LinkedList in Java
+                self.open.append(i) # if > mean, insert back to the tail
+                i = self.open.pop(0) 
             return i
         
     def getPath(self):
         path = []
-        nextNode = self.dest
-        while (nextNode > -1):
+        nextNode = self.dest # iterate from the destination
+        while (nextNode > -1):  # until the origin
             path.append(nextNode)
             nextNode = self.pred[nextNode]
         path.reverse()
